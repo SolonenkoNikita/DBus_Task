@@ -2,7 +2,7 @@
 
 #include <mutex>
 
-#include <IconfigStorage/IConfigStorage.hpp>
+#include <IConfigStorage/IConfigStorage.hpp>
 
 class AppConfig : public IConfigStorage
 {
