@@ -9,7 +9,7 @@ class AppConfig : public IConfigStorage
 public:
     AppConfig(std::string, std::map<std::string, sdbus::Variant>);
 
-    std::map<std::string, sdbus::Variant> getAllParameters() const override;
+    [[nodiscard]] std::map<std::string, sdbus::Variant> getAllParameters() const override;
     
     void setParameter(const std::string&, const sdbus::Variant&) override;
     

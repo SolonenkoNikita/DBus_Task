@@ -33,6 +33,8 @@ FetchContent_MakeAvailable(googletest)
 add_executable(Tests
     source/main.cpp
     source/json.cpp
+    source/dbus.cpp
+    source/app_conf.cpp
 )
 
 target_link_libraries(Tests
@@ -40,6 +42,8 @@ target_link_libraries(Tests
     GTest::GTest
     GTest::Main
     JsonConfigFileManager
+    DBusConfigAdapter
+    AppConfig
     nlohmann_json::nlohmann_json
     ${SDBUS_TARGET}
 )

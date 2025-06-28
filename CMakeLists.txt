@@ -8,7 +8,7 @@ add_subdirectory(IConfigStorage)
 
 add_subdirectory(AppConfig)
 
-#add_subdirectory(DBusConfigAdapter)
+add_subdirectory(DBusConfigAdapter)
 
 #add_subdirectory(Dialogue)
 

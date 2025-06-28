@@ -1,44 +1,59 @@
 #include "DBusConfigAdapter/DBusConfigAdapter.hpp"
+#include <iostream>
 
-DBusConfigAdapter::DBusConfigAdapter(sdbus::IConnection &connection,
-                                     const std::string &objectPath,
-                                     std::shared_ptr<IConfigStorage> config)
-    : config_(std::move(config)),
-      dbusObject_(sdbus::createObject(connection, objectPath)) {
-  registerInterface();
+DBusConfigAdapter::DBusConfigAdapter(std::unique_ptr<IConfigStorage> storage, sdbus::IConnection& connection)
+            : storage_(std::move(storage))
+{
+    const auto objectPath = "/com/system/configurationManager/Application/" + storage_->getAppName();
+    dbusObject_ = sdbus::createObject(connection, objectPath);
 }
 
-DBusConfigAdapter::~DBusConfigAdapter() = default;
+void DBusConfigAdapter::registerDBusInterface()
+{
+    dbusObject_->registerMethod("ChangeConfiguration")
+        .onInterface(interfaceName_)
+        .withInputParamNames("key", "value")
+        .implementedAs([this](const std::string& key, const sdbus::Variant& value) 
+        {
+            this->onChangeConfiguration(key, value);
+        });
 
-void DBusConfigAdapter::registerInterface() {
-  const char *interfaceName =
-      "com.system.configurationManager.Application.Configuration";
+    dbusObject_->registerMethod("GetConfiguration")
+        .onInterface(interfaceName_)
+        .withOutputParamNames("configuration")
+        .implementedAs([this]() -> std::map<std::string, sdbus::Variant> 
+        {
+            return this->onGetConfiguration();
+        });
 
-  dbusObject_->registerMethod(interfaceName, "ChangeConfiguration", "sv", "")
-      .onInterface(interfaceName)
-      .implementedAs(
-          [this](const std::string &key, const sdbus::Variant &value) {
-            this->ChangeConfiguration(key, value);
-          });
+    dbusObject_->registerSignal("configurationChanged")
+        .onInterface(interfaceName_)
+        .withParameters<std::map<std::string, sdbus::Variant>>("configuration");
 
-  dbusObject_->registerMethod(interfaceName, "GetConfiguration", "", "a{sv}")
-      .onInterface(interfaceName)
-      .implementedAs([this]() { return this->GetConfiguration(); });
-
-  dbusObject_->registerSignal(interfaceName, "configurationChanged", "a{sv}");
-
-  dbusObject_->finishRegistration();
+    dbusObject_->finishRegistration();
 }
 
-void DBusConfigAdapter::ChangeConfiguration(const std::string &key,
-                                            const sdbus::Variant &value) {
-  config_->setParameter(key, value);
-
-  dbusObject_->emitSignal("configurationChanged")
-      .onInterface("com.system.configurationManager.Application.Configuration")
-      .withArguments(config_->getAllParameters());
+void DBusConfigAdapter::onChangeConfiguration(const std::string& key, const sdbus::Variant& value)
+{
+    try 
+    {
+        storage_->setParameter(key, value);
+        emitConfigurationChangedSignal();
+    } 
+    catch (const std::exception& e) 
+    {
+        throw sdbus::Error("com.system.configurationManager.Error.InvalidArgs", e.what());
+    }
 }
 
-std::map<std::string, sdbus::Variant> DBusConfigAdapter::GetConfiguration() {
-  return config_->getAllParameters();
+DBusConfigAdapter::ConfigurationMap DBusConfigAdapter::onGetConfiguration()
+{
+    return storage_->getAllParameters();
+}
+
+void DBusConfigAdapter::emitConfigurationChangedSignal()
+{
+    auto signal = dbusObject_->createSignal(interfaceName_, "configurationChanged");
+    signal << storage_->getAllParameters();
+    dbusObject_->emitSignal(signal);
 }

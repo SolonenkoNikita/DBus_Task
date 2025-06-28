@@ -5,10 +5,10 @@
 static void validateConfig(const nlohmann::json& j) 
 {
     if (!j.contains("Timeout") || !j["Timeout"].is_number_unsigned()) 
-        throw std::runtime_error("Invalid or missing Timeout (uint required)");
+        throw std::runtime_error(MISSING_TM);
 
     if (!j.contains("TimeoutPhrase") || !j["TimeoutPhrase"].is_string()) 
-        throw std::runtime_error("Invalid or missing TimeoutPhrase (string required)");
+        throw std::runtime_error(MISSING_TM_PHRASE);
 }
 
 sdbus::Variant JsonConfigFileManager::jsonToVariant(const nlohmann::json& j) 
@@ -21,7 +21,7 @@ sdbus::Variant JsonConfigFileManager::jsonToVariant(const nlohmann::json& j)
         return j.get<std::string>();
     else if (j.is_boolean()) 
         return j.get<bool>();
-    throw std::runtime_error("Unsupported JSON type");
+    throw std::runtime_error(UNSUPPORTED_JS);
 }
 
 nlohmann::json JsonConfigFileManager::variantToJson(const sdbus::Variant& variant) 
@@ -34,14 +34,14 @@ nlohmann::json JsonConfigFileManager::variantToJson(const sdbus::Variant& varian
         return variant.get<int32_t>();
     else if (variant.containsValueOfType<bool>()) 
         return variant.get<bool>();
-    throw std::runtime_error("Unsupported variant type");
+    throw std::runtime_error(UNSUPPORTED_VAR);
 }
 
 std::map<std::string, sdbus::Variant> JsonConfigFileManager::load(const std::string& file_path) 
 {
     std::ifstream file(file_path);
     if (!file.is_open()) 
-        throw std::runtime_error("Cannot open config file: " + file_path);
+        throw std::runtime_error(ERROR_OPEN  + file_path);
 
     try 
     {

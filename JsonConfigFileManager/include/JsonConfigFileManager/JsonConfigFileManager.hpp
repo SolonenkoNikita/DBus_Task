@@ -5,6 +5,12 @@
 
 #include <IConfigFileManager/IConfigFileManager.hpp>
 
+static const std::string MISSING_TM = "Invalid or missing Timeout (uint required)";
+static const std::string MISSING_TM_PHRASE = "Invalid or missing TimeoutPhrase (string required)";
+static const std::string UNSUPPORTED_JS = "Unsupported JSON type";
+static const std::string UNSUPPORTED_VAR = "Unsupported variant type";
+static const std::string ERROR_OPEN = "Cannot open config file: ";
+
 /**
  * @class JsonConfigFileManager
  * @brief JSON-based implementation of IConfigFileManager
@@ -30,7 +36,7 @@ public:
      * }
      * @endcode
     */
-    std::map<std::string, sdbus::Variant> load(const std::string&) override;
+   [[nodiscard]] std::map<std::string, sdbus::Variant> load(const std::string&) override;
 
     /**
      * @brief Save configuration to JSON file
@@ -56,7 +62,7 @@ private:
      * - std::string
      * - bool
     */
-    static nlohmann::json variantToJson(const sdbus::Variant&);
+   [[nodiscard]] static nlohmann::json variantToJson(const sdbus::Variant&);
 
     /**
      * @brief Convert nlohmann::json to sdbus::Variant
@@ -69,5 +75,5 @@ private:
      * - string
      * - boolean
     */
-    static sdbus::Variant jsonToVariant(const nlohmann::json&);
+    [[nodiscard]] static sdbus::Variant jsonToVariant(const nlohmann::json&);
 };
