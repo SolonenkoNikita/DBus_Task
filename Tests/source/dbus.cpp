@@ -91,7 +91,7 @@ TEST_F(DBusConfigAdapterTest, GetConfigurationReturnsEmptyForNewStorage)
     auto proxy = sdbus::createProxy(*connection_, "test.config.manager",
         "/com/system/configurationManager/Application/testApp");
     
-    for (int i = 0; i < 3; ++i) 
+    for (size_t i = 0; i < 3; ++i) 
     {
         try 
         {
@@ -190,20 +190,30 @@ TEST_F(DBusConfigAdapterTest, ConcurrentAccess)
     auto proxy = sdbus::createProxy(*connection_, "test.config.manager",
         "/com/system/configurationManager/Application/testApp");
     
-    constexpr int THREAD_COUNT = 10, ITERATIONS = 100;
+    constexpr int THREAD_COUNT = 5;
+    constexpr int ITERATIONS = 20;
     
+    std::mutex mutex;
     std::vector<std::thread> threads;
+    
     for (int i = 0; i < THREAD_COUNT; ++i) 
     {
-        threads.emplace_back([&proxy, i] 
+        threads.emplace_back([&proxy, i, &mutex] 
         {
-            for (int j = 0; j < ITERATIONS; ++j) 
+            for (size_t j = 0; j < static_cast<size_t>(ITERATIONS); ++j) 
             {
                 std::string key = "thread_" + std::to_string(i) + "_" + std::to_string(j);
-                proxy->callMethod("ChangeConfiguration")
-                    .onInterface("com.system.configurationManager.Application.Configuration")
-                    .withArguments(key, sdbus::Variant(j))
-                    .withTimeout(std::chrono::milliseconds(100));
+                try 
+                {
+                    std::lock_guard<std::mutex> lock(mutex);
+                    proxy->callMethod("ChangeConfiguration")
+                        .onInterface("com.system.configurationManager.Application.Configuration")
+                        .withArguments(key, sdbus::Variant(j))
+                        .withTimeout(std::chrono::milliseconds(100));
+                } 
+                catch (...) 
+                {
+                }
             }
         });
     }

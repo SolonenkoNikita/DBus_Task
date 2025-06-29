@@ -1,38 +1,36 @@
 #include "DBusConfigAdapter/DBusConfigAdapter.hpp"
+
 #include <iostream>
 
 DBusConfigAdapter::DBusConfigAdapter(std::unique_ptr<IConfigStorage> storage, sdbus::IConnection& connection)
             : storage_(std::move(storage))
 {
-    const auto objectPath = "/com/system/configurationManager/Application/" + storage_->getAppName();
-    dbusObject_ = sdbus::createObject(connection, objectPath);
-    if (!dbusObject_) 
-        throw std::runtime_error("Failed to create D-Bus object for path: " + objectPath);
+    const auto object_path = PATH + storage_->getAppName();
+    dbus_object_ = sdbus::createObject(connection, object_path);
+    if (!dbus_object_) 
+        throw std::runtime_error(ERROR_CREATE + object_path);
 }
 
 void DBusConfigAdapter::registerDBusInterface()
 {
-    dbusObject_->registerMethod("ChangeConfiguration")
-        .onInterface(interfaceName_)
+    dbus_object_->registerMethod(CHANGE).onInterface(interface_name_)
         .withInputParamNames("key", "value")
         .implementedAs([this](const std::string& key, const sdbus::Variant& value) 
         {
             this->onChangeConfiguration(key, value);
         });
 
-    dbusObject_->registerMethod("GetConfiguration")
-        .onInterface(interfaceName_)
+    dbus_object_->registerMethod(GET).onInterface(interface_name_)
         .withOutputParamNames("configuration")
         .implementedAs([this]() -> std::map<std::string, sdbus::Variant> 
         {
             return this->onGetConfiguration();
         });
 
-    dbusObject_->registerSignal("configurationChanged")
-        .onInterface(interfaceName_)
+    dbus_object_->registerSignal(SIGNAL).onInterface(interface_name_)
         .withParameters<std::map<std::string, sdbus::Variant>>("configuration");
 
-    dbusObject_->finishRegistration();
+    dbus_object_->finishRegistration();
 }
 
 void DBusConfigAdapter::onChangeConfiguration(const std::string& key, const sdbus::Variant& value)
@@ -55,7 +53,7 @@ DBusConfigAdapter::ConfigurationMap DBusConfigAdapter::onGetConfiguration()
 
 void DBusConfigAdapter::emitConfigurationChangedSignal()
 {
-    auto signal = dbusObject_->createSignal(interfaceName_, "configurationChanged");
+    auto signal = dbus_object_->createSignal(interface_name_, SIGNAL);
     signal << storage_->getAllParameters();
-    dbusObject_->emitSignal(signal);
+    dbus_object_->emitSignal(signal);
 }
