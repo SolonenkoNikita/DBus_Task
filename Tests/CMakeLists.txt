@@ -35,6 +35,7 @@ add_executable(Tests
     source/json.cpp
     source/dbus.cpp
     source/app_conf.cpp
+    #source/manager.cpp
 )
 
 target_link_libraries(Tests
@@ -45,6 +46,7 @@ target_link_libraries(Tests
     DBusConfigAdapter
     AppConfig
     IConfigStorage
+    ConfigurationManager
     nlohmann_json::nlohmann_json
     ${SDBUS_TARGET}
 )

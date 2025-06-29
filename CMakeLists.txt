@@ -10,8 +10,10 @@ add_subdirectory(AppConfig)
 
 add_subdirectory(DBusConfigAdapter)
 
-#add_subdirectory(Dialogue)
+add_subdirectory(DialogueServer)
 
 add_subdirectory(JsonConfigFileManager)
+
+add_subdirectory(ConfigurationManager)
 
 add_subdirectory(Tests)

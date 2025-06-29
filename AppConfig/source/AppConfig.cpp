@@ -3,7 +3,7 @@
 AppConfig::AppConfig(std::string app_name, std::map<std::string, sdbus::Variant> config)
             : app_name_(std::move(app_name)), parameters_(std::move(config)) {}
 
-std::map<std::string, sdbus::Variant> AppConfig::getAllParameters() const 
+std::map<std::string, sdbus::Variant> AppConfig::getAllParameters() const
 {
     std::lock_guard<std::mutex> lock(mutex_);
     return parameters_;

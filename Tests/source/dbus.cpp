@@ -18,7 +18,7 @@ public:
     {
         return parameters_;
     }
-    
+
     void setParameter(const std::string& key, const sdbus::Variant& value) override 
     {
         if (key == "throw") 
