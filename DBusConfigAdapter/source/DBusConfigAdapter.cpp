@@ -6,6 +6,8 @@ DBusConfigAdapter::DBusConfigAdapter(std::unique_ptr<IConfigStorage> storage, sd
 {
     const auto objectPath = "/com/system/configurationManager/Application/" + storage_->getAppName();
     dbusObject_ = sdbus::createObject(connection, objectPath);
+    if (!dbusObject_) 
+        throw std::runtime_error("Failed to create D-Bus object for path: " + objectPath);
 }
 
 void DBusConfigAdapter::registerDBusInterface()

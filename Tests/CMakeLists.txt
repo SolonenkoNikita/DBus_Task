@@ -44,6 +44,7 @@ target_link_libraries(Tests
     JsonConfigFileManager
     DBusConfigAdapter
     AppConfig
+    IConfigStorage
     nlohmann_json::nlohmann_json
     ${SDBUS_TARGET}
 )
