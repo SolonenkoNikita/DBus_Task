@@ -1,30 +1,26 @@
 #include <gtest/gtest.h>
 
+#include <JsonConfigFileManager/JsonConfigFileManager.hpp>
 #include <filesystem>
 #include <fstream>
 
-#include <JsonConfigFileManager/JsonConfigFileManager.hpp>
-
 namespace fs = std::filesystem;
 
-class JsonConfigFileManagerTest : public ::testing::Test 
+class JsonConfigFileManagerTest : public ::testing::Test
 {
-protected:
-    void SetUp() override 
+   protected:
+    void SetUp() override
     {
         temp_dir = fs::temp_directory_path() / "config_manager_test";
         fs::create_directory(temp_dir);
     }
 
-    void TearDown() override 
-    {
-        fs::remove_all(temp_dir);
-    }
+    void TearDown() override { fs::remove_all(temp_dir); }
 
     fs::path temp_dir;
 };
 
-TEST_F(JsonConfigFileManagerTest, LoadValidConfig) 
+TEST_F(JsonConfigFileManagerTest, LoadValidConfig)
 {
     const auto config_path = temp_dir / "valid_config.json";
     std::ofstream(config_path) << R"({
@@ -39,13 +35,13 @@ TEST_F(JsonConfigFileManagerTest, LoadValidConfig)
     EXPECT_EQ(config["TimeoutPhrase"].get<std::string>(), "Hello");
 }
 
-TEST_F(JsonConfigFileManagerTest, LoadNonExistentFile) 
+TEST_F(JsonConfigFileManagerTest, LoadNonExistentFile)
 {
     JsonConfigFileManager manager;
     EXPECT_THROW(manager.load("/nonexistent/file.json"), std::runtime_error);
 }
 
-TEST_F(JsonConfigFileManagerTest, LoadInvalidJson) 
+TEST_F(JsonConfigFileManagerTest, LoadInvalidJson)
 {
     const auto config_path = temp_dir / "invalid.json";
     std::ofstream(config_path) << "{ invalid: json }";
@@ -54,7 +50,7 @@ TEST_F(JsonConfigFileManagerTest, LoadInvalidJson)
     EXPECT_THROW(manager.load(config_path.string()), std::runtime_error);
 }
 
-TEST_F(JsonConfigFileManagerTest, LoadMissingTimeout) 
+TEST_F(JsonConfigFileManagerTest, LoadMissingTimeout)
 {
     const auto config_path = temp_dir / "missing_timeout.json";
     std::ofstream(config_path) << R"({
@@ -65,7 +61,7 @@ TEST_F(JsonConfigFileManagerTest, LoadMissingTimeout)
     EXPECT_THROW(manager.load(config_path.string()), std::runtime_error);
 }
 
-TEST_F(JsonConfigFileManagerTest, LoadInvalidTimeoutType) 
+TEST_F(JsonConfigFileManagerTest, LoadInvalidTimeoutType)
 {
     const auto config_path = temp_dir / "invalid_timeout.json";
     std::ofstream(config_path) << R"({
@@ -77,16 +73,13 @@ TEST_F(JsonConfigFileManagerTest, LoadInvalidTimeoutType)
     EXPECT_THROW(manager.load(config_path.string()), std::runtime_error);
 }
 
-TEST_F(JsonConfigFileManagerTest, SaveConfig) 
+TEST_F(JsonConfigFileManagerTest, SaveConfig)
 {
     const auto config_path = temp_dir / "saved_config.json";
     JsonConfigFileManager manager;
 
-    std::map<std::string, sdbus::Variant> config = 
-    {
-        {"Timeout", sdbus::Variant{2000}},
-        {"TimeoutPhrase", sdbus::Variant{"New phrase"}}
-    };
+    std::map<std::string, sdbus::Variant> config = {{"Timeout", sdbus::Variant{2000}},
+                                                    {"TimeoutPhrase", sdbus::Variant{"New phrase"}}};
 
     manager.save(config_path.string(), config);
 

@@ -1,15 +1,14 @@
 #include <ConfigApplication/ConfigApplication.hpp>
-
 #include <iostream>
 
-int main() 
+int main()
 {
-    try 
+    try
     {
         ConfigApplication client;
         client.run();
-    } 
-    catch (const std::exception& e) 
+    }
+    catch (const std::exception& e)
     {
         std::cerr << "Error: " << e.what() << '\n';
         return 1;

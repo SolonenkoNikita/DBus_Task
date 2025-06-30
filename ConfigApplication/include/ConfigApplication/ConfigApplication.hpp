@@ -1,9 +1,10 @@
 #pragma once
 
+#include <sdbus-c++/sdbus-c++.h>
+
 #include <atomic>
 #include <chrono>
 #include <nlohmann/json.hpp>
-#include <sdbus-c++/sdbus-c++.h>
 #include <string>
 #include <thread>
 
@@ -23,21 +24,20 @@ static const std::string DBUS_INTERFACE = "com.system.configurationManager.Appli
  *
  * This class implements a D-Bus client application which:
  * - Connects to the D-Bus service `com.system.configurationManager`
- * - Subscribes to the signal `configurationChanged` on the object 
+ * - Subscribes to the signal `configurationChanged` on the object
  *   `/com/system/configurationManager/Application/confManagerApplication1`
  * - Updates internal configuration values (`Timeout`, `TimeoutPhrase`) upon receiving the signal
  * - Periodically prints the `TimeoutPhrase` every `Timeout` milliseconds
  */
-class ConfigApplication 
+class ConfigApplication
 {
-public:
-    
+   public:
     /**
      * @brief Constructor. Initializes the application.
      *
      * The constructor ensures that the config file exists, loads its contents,
      * and sets up the D-Bus connection and signal subscription.
-    */
+     */
     ConfigApplication();
 
     /**
@@ -45,32 +45,31 @@ public:
      *
      * Runs a background thread that periodically prints the current phrase.
      * Waits for user input (Enter) to stop execution.
-    */
+     */
     void run();
 
     /**
      * @brief Destructor. Cleans up resources.
      *
      * Stops the worker thread and releases D-Bus proxy and connection.
-    */
+     */
     ~ConfigApplication();
 
-private:
-    
+   private:
     /**
      * @brief Loads initial configuration from a JSON file.
      *
      * Tries to load `Timeout` and `TimeoutPhrase` from the config file.
      * If the file doesn't exist or is invalid, default values are used.
-    */
+     */
     void loadInitialConfig();
-    
+
     /**
      * @brief Sets up D-Bus connection and signal handler.
      *
      * Establishes a session bus connection, creates a D-Bus proxy,
      * and subscribes to the `configurationChanged` signal.
-    */
+     */
     void setupDBusConnection();
 
     /**
@@ -78,7 +77,7 @@ private:
      *
      * Updates `timeout_` and `timeout_phrase_` if corresponding keys are present.
      * @param config Map of configuration parameters as received from D-Bus.
-    */
+     */
     void applyNewConfig(const std::map<std::string, sdbus::Variant>&);
 
     /**
@@ -86,14 +85,14 @@ private:
      *
      * Loops while `running_` is true, sleeping for `timeout_` milliseconds
      * and then printing `timeout_phrase_`.
-    */
+     */
     void printLoop();
 
     /**
      * @brief Ensures that the config directory and file exist.
      *
      * Creates the config directory and writes default content if needed.
-    */
+     */
     void ensureConfigFileExists();
 
     /**
@@ -101,7 +100,7 @@ private:
      * @param path Path that may contain `~` at the beginning.
      * @return Expanded path with `~` replaced by `$HOME`.
      * @throws std::runtime_error if $HOME environment variable is not set.
-    */
+     */
     std::string expandPath(const std::string&) const;
 
     std::atomic<bool> running_{false};
