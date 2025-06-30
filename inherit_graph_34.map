@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classIConfigStorage.html" title="Abstract interface for configuration storage management." alt="" coords="5,31,123,57"/>
+<area shape="rect" id="node2" href="$classAppConfig.html" title="Thread&#45;safe implementation of application configuration storage." alt="" coords="201,5,289,32"/>
+<area shape="rect" id="node3" href="$classMockConfigStorage.html" title=" " alt="" coords="171,56,319,83"/>
+</map>

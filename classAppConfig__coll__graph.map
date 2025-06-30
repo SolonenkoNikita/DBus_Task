@@ -1,0 +1,4 @@
+<map id="AppConfig" name="AppConfig">
+<area shape="rect" id="node1" title="Thread&#45;safe implementation of application configuration storage." alt="" coords="20,80,108,107"/>
+<area shape="rect" id="node2" href="$classIConfigStorage.html" title="Abstract interface for configuration storage management." alt="" coords="5,5,123,32"/>
+</map>
